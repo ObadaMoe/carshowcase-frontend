@@ -1,0 +1,118 @@
+<div class="container mt-4">
+  <div class="row">
+
+    <!-- Search bar -->
+    <div class="row g-2 align-items-center ms-1 mb-3 bar">
+      <div class="col-sm-8 col-md-6">
+        <input
+          class="form-control"
+          placeholder="Search company, model, description, price..."
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="setSearch($event, true)"
+          name="searchBox"
+        />
+      </div>
+      <div class="col-auto ms-auto me-2">
+        <button class="btn btn-primary " (click)="openModal()">Add</button>
+      </div>
+    </div>
+    <div class="col-md-4 mb-3" *ngFor="let car of displayedCars">
+      <div class="card h-100 card-click" (click)="goToDetail(car.id)" role="button">
+        <img
+          class="card-img-top"
+          [src]="(car.imageDataUrl)"
+          [alt]="car.company + ' ' + car.model"
+        />
+        <div class="card-body">
+          <h5 class="card-title">{{ car.company }} {{ car.model }}</h5>
+          <p class="card-text mb-0">
+            <strong>Price:</strong> {{ car.price | currency:'USD':'symbol' }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading indicator -->
+  <div class="text-center mt-4" *ngIf="loading">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <!-- helpful empty state -->
+  <div class="text-center text-muted mt-4" *ngIf="!displayedCars?.length && !loading">
+    No cars found.
+  </div>
+
+  <!-- Load More button -->
+  <div class="text-center mt-4" *ngIf="hasMore()">
+    <button class="btn btn-primary" (click)="loadMore()" [disabled]="loading">
+      <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status"></span>
+      Load More
+    </button>
+  </div>
+
+  <!-- Total count info -->
+  <div class="text-center text-muted mt-3" *ngIf="displayedCars && displayedCars.length > 0">
+    Showing {{ displayedCars.length }} of {{ total }} cars
+  </div>
+</div>
+
+<!-- Add Car Modal -->
+<div class="modal fade show" tabindex="-1" *ngIf="showModal" style="display:block; background: rgba(0,0,0,.5);">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Add New Car</h5>
+        <button type="button" class="btn-close" aria-label="Close" (click)="closeModal()"></button>
+      </div>
+
+      <form (ngSubmit)="addCar(carForm)" #carForm="ngForm">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Company <span class="text-danger">*</span></label>
+            <input class="form-control" name="company" [(ngModel)]="newCar.company" required />
+            <div class="text-danger small mt-1" *ngIf="submitted && !newCar.company">Company is required.</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Model <span class="text-danger">*</span></label>
+            <input class="form-control" name="model" [(ngModel)]="newCar.model" required />
+            <div class="text-danger small mt-1" *ngIf="submitted && !newCar.model">Model is required.</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Price <span class="text-danger">*</span></label>
+            <input class="form-control" name="price" type="number" min="1" [(ngModel)]="newCar.price" required />
+            <div class="text-danger small mt-1" *ngIf="submitted && (!newCar.price || newCar.price <= 0)">
+              Price must be greater than 0.
+            </div>
+          </div>
+
+          <!-- Removed Image URL since API expects file upload (bytes) -->
+          <div class="mb-3">
+            <label class="form-label">Upload Image (optional)</label>
+            <input class="form-control" type="file" accept="image/*" (change)="onFileSelected($event)" />
+            <div class="mt-2 d-flex align-items-center gap-2" *ngIf="previewUrl">
+              <img [src]="previewUrl" alt="Preview" class="img-thumbnail" style="max-width: 180px;">
+              <button type="button" class="btn btn-sm btn-outline-danger" (click)="clearUploadedImage()">Remove</button>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Seller Description</label>
+            <textarea class="form-control" name="description" rows="3" [(ngModel)]="newCar.description"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" (click)="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add</button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>

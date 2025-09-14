@@ -1,0 +1,25 @@
+.navbar {
+  padding: 1rem 2rem;
+  border-bottom: 1px solid #dee2e6; // subtle border
+  background-color: #ffffff;
+
+  .navbar-brand {
+    font-weight: bold;
+    color: #ffffff;
+  }
+
+  .nav-link {
+    color: #ffffff;
+    margin-right: 1rem;
+    transition: color 0.2s ease;
+
+    &:hover,
+    &.active {
+      color: #007bff; // Bootstrap primary
+    }
+  }
+
+  .btn {
+    margin-left: auto; // push button to the right
+  }
+}
