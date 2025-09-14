@@ -17,6 +17,105 @@
           <a class="nav-link" (click)="goManage()" role="button">Manage</a>
         </li>
       </ul>
+      <div class="navbar-nav">
+        <button class="btn btn-outline-light btn-sm" (click)="openPaymentModal()">
+          <i class="bi bi-credit-card"></i> Add Payment
+        </button>
+      </div>
     </div>
   </div>
 </nav>
+
+<!-- Payment Modal -->
+<div class="modal fade show" tabindex="-1" *ngIf="showPaymentModal" style="display:block; background: rgba(0,0,0,.5);">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add Payment Details</h5>
+        <button type="button" class="btn-close" aria-label="Close" (click)="closePaymentModal()"></button>
+      </div>
+
+      <form (ngSubmit)="addPayment(paymentFormRef)" #paymentFormRef="ngForm">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Card Holder Name <span class="text-danger">*</span></label>
+            <input
+              class="form-control"
+              name="cardHolder"
+              [(ngModel)]="paymentData.cardHolder"
+              required
+              maxlength="100"
+              placeholder="Enter card holder name" />
+            <div class="text-danger small mt-1" *ngIf="submitted && !paymentData.cardHolder">
+              Card holder name is required.
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Card Number <span class="text-danger">*</span></label>
+            <input
+              class="form-control"
+              name="cardNumber"
+              [(ngModel)]="paymentData.cardNumber"
+              required
+              maxlength="16"
+              placeholder="1234567890123456"
+              pattern="[0-9]{16}" />
+            <div class="text-danger small mt-1" *ngIf="submitted && !paymentData.cardNumber">
+              Card number is required.
+            </div>
+            <div class="text-danger small mt-1" *ngIf="submitted && paymentData.cardNumber && !isValidCardNumber()">
+              Card number must be exactly 16 digits.
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Expiration Date <span class="text-danger">*</span></label>
+                <input
+                  class="form-control"
+                  name="expDate"
+                  [(ngModel)]="paymentData.expDate"
+                  required
+                  maxlength="5"
+                  placeholder="MM/YY"
+                  pattern="(0[1-9]|1[0-2])\/([0-9]{2})" />
+                <div class="text-danger small mt-1" *ngIf="submitted && !paymentData.expDate">
+                  Expiration date is required.
+                </div>
+                <div class="text-danger small mt-1" *ngIf="submitted && paymentData.expDate && !isValidExpDate()">
+                  Please enter date in MM/YY format.
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">CVV <span class="text-danger">*</span></label>
+                <input
+                  class="form-control"
+                  name="cvv"
+                  [(ngModel)]="paymentData.cvv"
+                  required
+                  maxlength="3"
+                  placeholder="123"
+                  pattern="[0-9]{3}" />
+                <div class="text-danger small mt-1" *ngIf="submitted && !paymentData.cvv">
+                  CVV is required.
+                </div>
+                <div class="text-danger small mt-1" *ngIf="submitted && paymentData.cvv && !isValidCvv()">
+                  CVV must be exactly 3 digits.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" (click)="closePaymentModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add Payment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
