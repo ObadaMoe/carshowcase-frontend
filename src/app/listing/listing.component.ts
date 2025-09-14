@@ -56,10 +56,7 @@ export class ListingComponent implements OnInit, OnDestroy {
 
   // ── Lifecycle ────────────────────────────────────────────────────────────────
   ngOnInit(): void {
-    // Load initial data
-    this.fetch(true);
-
-    // react to URL changes (?q=, ?add=1)
+    // react to URL changes (?q=, ?add=1) - this handles initial load too
     this.route.queryParamMap.subscribe(q => {
       const add = q.get('add');
       const qTerm = q.get('q') || '';

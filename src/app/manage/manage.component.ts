@@ -58,7 +58,7 @@ export class ManageComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute
   ) {
         this.searchSubscription = this.searchSubject.pipe(
-          debounceTime(1000),
+          debounceTime(1000), // Reduced from 1000ms to 300ms for better responsiveness
           distinctUntilChanged()
         ).subscribe(searchTerm => {
           this.searchTerm = searchTerm;
@@ -67,13 +67,10 @@ export class ManageComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // Load initial data
-    this.loadPage(true);
-
-    // keep optional q in sync with URL (you can remove this if you don't want query-driven search here)
+    // Load initial data via route subscription - this handles initial load too
     this.route.queryParamMap.subscribe(q => {
       const qTerm = q.get('q') || '';
-      this.setSearch(qTerm, true);
+      this.setSearchTerm(qTerm);
     });
   }
 
@@ -118,6 +115,11 @@ export class ManageComponent implements OnInit, OnDestroy {
   // ── search / pagination ────────────────────────────────────────────────────
   setSearch(term: string, reset = false): void {
     this.searchSubject.next(term);
+  }
+
+  private setSearchTerm(term: string): void {
+    this.searchTerm = term;
+    this.performSearch(); // Direct call, bypasses debounce for immediate initial load
   }
 
   clearSearch(): void {
