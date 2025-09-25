@@ -18,7 +18,7 @@ import { provideHttpClient } from '@angular/common/http';
     ListingComponent,
     ManageComponent,
     CarDetailComponent,
-    FooterComponent,
+
    ],
   imports: [
     BrowserModule,
