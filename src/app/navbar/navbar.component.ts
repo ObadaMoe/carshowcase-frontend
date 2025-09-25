@@ -3,7 +3,6 @@ import { Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
 import { PaymentService } from '../services/payment.service';
 import { CreatePaymentDto } from '../models/payment.model';
-import {PaymentDetails} from '../models/payment.model';
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
@@ -28,10 +27,21 @@ export class NavbarComponent {
 
   goListing(): void {
     this.router.navigate(['/listing'], { queryParams: { q: null, add: null } });
+    this.closeMobileMenu();
   }
 
   goManage(): void {
     this.router.navigate(['/manage'], { queryParams: { q: null, add: null } });
+    this.closeMobileMenu();
+  }
+
+  private closeMobileMenu(): void {
+    // Close mobile menu after navigation
+    const navbarCollapse = document.getElementById('navbarNav');
+    if (navbarCollapse && navbarCollapse.classList.contains('show')) {
+      const bsCollapse = new (window as any).bootstrap.Collapse(navbarCollapse, { toggle: false });
+      bsCollapse.hide();
+    }
   }
 
   // Payment modal methods

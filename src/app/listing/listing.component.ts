@@ -11,7 +11,7 @@ import { CarListItemDto } from '../models/car.model';
   selector: 'app-listing',
   templateUrl: './listing.component.html',
   styleUrls: ['./listing.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class ListingComponent implements OnInit, OnDestroy {
   // ── Listing / paging state (client-side filtering with load more) ─────────────
@@ -39,25 +39,20 @@ export class ListingComponent implements OnInit, OnDestroy {
   readonly MAX_IMAGE_BYTES = 2_000_000; // 2 MB
   readonly placeholder = 'https://via.placeholder.com/600x400?text=Car';
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private api: ApiCarService
-  ) {
+  constructor(private route: ActivatedRoute, private router: Router, private api: ApiCarService) {
     // Set up debounced search
-    this.searchSubscription = this.searchSubject.pipe(
-      debounceTime(1000),
-      distinctUntilChanged()
-    ).subscribe(searchTerm => {
-      this.searchTerm = searchTerm;
-      this.performSearch();
-    });
+    this.searchSubscription = this.searchSubject
+      .pipe(debounceTime(1000), distinctUntilChanged())
+      .subscribe((searchTerm) => {
+        this.searchTerm = searchTerm;
+        this.performSearch();
+      });
   }
 
   // ── Lifecycle ────────────────────────────────────────────────────────────────
   ngOnInit(): void {
     // react to URL changes (?q=, ?add=1) - this handles initial load too
-    this.route.queryParamMap.subscribe(q => {
+    this.route.queryParamMap.subscribe((q) => {
       const add = q.get('add');
       const qTerm = q.get('q') || '';
       if (add === '1') this.openModal();
@@ -82,27 +77,26 @@ export class ListingComponent implements OnInit, OnDestroy {
     this.loading = true;
 
     // Load cars from server with search term
-    this.api.getCars(this.searchTerm, this.page, this.batchSize)
-      .subscribe({
-        next: res => {
-          if (reset || this.searchTerm.trim()) {
-            // For search or reset, replace the cars
-            this.allCars = res.items;
-            this.displayedCars = res.items;
-          } else {
-            // For load more without search, accumulate cars
-            this.allCars = [...this.allCars, ...res.items];
-            this.displayedCars = [...this.displayedCars, ...res.items];
-          }
-          this.total = res.totalCount;
-          this.hasMoreData = this.allCars.length < this.total;
-          this.loading = false;
-        },
-        error: err => {
-          this.loading = false;
-          alert('Failed to load cars: ' + (err?.error || err?.message || ''));
+    this.api.getCars(this.searchTerm, this.page, this.batchSize).subscribe({
+      next: (res) => {
+        if (reset || this.searchTerm.trim()) {
+          // For search or reset, replace the cars
+          this.allCars = res.items;
+          this.displayedCars = res.items;
+        } else {
+          // For load more without search, accumulate cars
+          this.allCars = [...this.allCars, ...res.items];
+          this.displayedCars = [...this.displayedCars, ...res.items];
         }
-      });
+        this.total = res.totalCount;
+        this.hasMoreData = this.allCars.length < this.total;
+        this.loading = false;
+      },
+      error: (err) => {
+        this.loading = false;
+        alert('Failed to load cars: ' + (err?.error || err?.message || ''));
+      },
+    });
   }
 
   // ── Server-side search ──────────────────────────────────────────────────────
@@ -142,7 +136,6 @@ export class ListingComponent implements OnInit, OnDestroy {
 
     this.router.navigate(['Cars', 'CarInfo', id]);
   }
-
 
   // ── Modal handlers ──────────────────────────────────────────────────────────
   openModal(): void {
@@ -193,18 +186,20 @@ export class ListingComponent implements OnInit, OnDestroy {
     this.submitted = true;
     if (form.invalid || Number(this.newCar.price) <= 0) return;
 
-    this.api.addCar({
-      company: this.newCar.company.trim(),
-      model: this.newCar.model.trim(),
-      price: Number(this.newCar.price),
-      description: (this.newCar.description || '').trim(),
-      file: this.selectedFile
-    }).subscribe({
-      next: () => {
-        this.closeModal();
-        this.fetch(true); // reload all cars to include the new one
-      },
-      error: err => alert('Failed to add car: ' + (err?.error || err?.message || ''))
-    });
+    this.api
+      .addCar({
+        company: this.newCar.company.trim(),
+        model: this.newCar.model.trim(),
+        price: Number(this.newCar.price),
+        description: (this.newCar.description || '').trim(),
+        file: this.selectedFile,
+      })
+      .subscribe({
+        next: () => {
+          this.closeModal();
+          this.fetch(true); // reload all cars to include the new one
+        },
+        error: (err) => alert('Failed to add car: ' + (err?.error || err?.message || '')),
+      });
   }
 }
