@@ -4,19 +4,21 @@
 
   </div>
 
-  <!-- search row -->
+  <!-- search row - Mobile optimized -->
   <div class="row g-2 align-items-center mb-3">
-    <div class="col-sm-8 col-md-6">
+    <div class="col-12 col-sm-8 col-md-6">
       <input
         class="form-control"
-        placeholder="Search company, model, description, price..."
+        placeholder="Search cars..."
         [(ngModel)]="searchTerm"
         (ngModelChange)="setSearch($event, true)"
         name="searchBox"
       />
     </div>
-    <div class="col-auto ms-auto me">
-      <button class="btn btn-primary " (click)="openAdd()">Add</button>
+    <div class="col-12 col-sm-4 col-md-6 d-flex justify-content-end">
+      <button class="btn btn-primary w-100 w-sm-auto" (click)="openAdd()">
+        <i class="bi bi-plus-circle me-1"></i>Add Car
+      </button>
     </div>
   </div>
 
@@ -24,9 +26,12 @@
   <div class="text-center mt-4" *ngIf="loading">
     <img src="/loading.gif" alt="Loading..." width="60" height="60" />
   </div>
+  }
 
-  <!-- table -->
-  <div class="table-responsive rounded-1" *ngIf="!loading">
+  <!-- table - Mobile responsive -->
+  @if(!loading) {
+  <!-- Desktop table view -->
+  <div class="table-responsive rounded-1 d-none d-md-block">
     <table class="table align-middle">
       <thead class="table-light">
         <tr>
@@ -38,7 +43,8 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let c of rows">
+        @for(c of rows; track c.id) {
+        <tr>
           <td>
             <img [src]="c.imageDataUrl" [alt]="c.company + ' ' + c.model" class="img-thumbnail" style="width: 60px; height: 40px; object-fit: cover;">
           </td>
@@ -50,15 +56,48 @@
             <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete(c)">Delete</button>
           </td>
         </tr>
-        <tr *ngIf="rows.length === 0">
+        }
+        @if(rows.length === 0) {
+        <tr>
           <td colspan="5" class="text-center text-muted py-4">No cars found.</td>
         </tr>
+        }
       </tbody>
     </table>
   </div>
 
+  <!-- Mobile card view -->
+  <div class="d-md-none">
+    @for(c of rows; track c.id) {
+    <div class="card mb-3">
+      <div class="row g-0">
+        <div class="col-4">
+          <img [src]="c.imageDataUrl" [alt]="c.company + ' ' + c.model" class="img-fluid rounded-start" style="height: 120px; object-fit: cover; width: 100%;">
+        </div>
+        <div class="col-8">
+          <div class="card-body p-3">
+            <h6 class="card-title mb-1">{{ c.company }} {{ c.model }}</h6>
+            <p class="card-text mb-2">
+              <strong>{{ c.price | currency:'USD':'symbol' }}</strong>
+            </p>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-outline-primary flex-fill" (click)="openEdit(c)">Edit</button>
+              <button class="btn btn-sm btn-outline-danger flex-fill" (click)="confirmDelete(c)">Delete</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    }
+    @if(rows.length === 0) {
+    <div class="text-center text-muted py-4">No cars found.</div>
+    }
+  </div>
+  }
+
   <!-- pagination controls -->
-  <div class="d-flex justify-content-between align-items-center" *ngIf="!loading">
+  @if(!loading) {
+  <div class="d-flex justify-content-between align-items-center">
     <div>
       <select class="form-select form-select-sm d-inline-block" style="width:auto"
               [ngModel]="pageSize" (ngModelChange)="changePageSize($event)">
@@ -72,15 +111,19 @@
       <button class="btn btn-sm btn-outline-secondary btn-clear" (click)="changePage(-1)" [disabled]="page <= 1">Prev</button>
       <button class="btn btn-sm btn-outline-secondary btn-clear" disabled>{{ page }} / {{ totalPages }}</button>
       <button class="btn btn-sm btn-outline-secondary btn-clear" (click)="changePage(1)" [disabled]="page >= totalPages || loading">
-        <span *ngIf="loading" class="spinner-border spinner-border-sm me-1" role="status"></span>
+        @if(loading) {
+        <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+        }
         Next
       </button>
     </div>
   </div>
+  }
 </div>
 
 <!-- Add/Edit Modal -->
-<div class="modal fade show" tabindex="-1" *ngIf="showModal" style="display:block; background: rgba(0,0,0,.5);">
+@if(showModal) {
+<div class="modal fade show" tabindex="-1" style="display:block; background: rgba(0,0,0,.5);">
   <div class="modal-dialog">
     <div class="modal-content">
 
@@ -94,30 +137,38 @@
           <div class="mb-3">
             <label class="form-label">Company <span class="text-danger">*</span></label>
             <input class="form-control" name="company" [(ngModel)]="formModel.company" required />
-            <div class="text-danger small mt-1" *ngIf="submitted && !formModel.company">Company is required.</div>
+            @if(submitted && !formModel.company) {
+            <div class="text-danger small mt-1">Company is required.</div>
+            }
           </div>
 
           <div class="mb-3">
             <label class="form-label">Model <span class="text-danger">*</span></label>
             <input class="form-control" name="model" [(ngModel)]="formModel.model" required />
-            <div class="text-danger small mt-1" *ngIf="submitted && !formModel.model">Model is required.</div>
+            @if(submitted && !formModel.model) {
+            <div class="text-danger small mt-1">Model is required.</div>
+            }
           </div>
 
           <div class="mb-3">
             <label class="form-label">Price <span class="text-danger">*</span></label>
             <input class="form-control" name="price" type="number" min="1" [(ngModel)]="formModel.price" required />
-            <div class="text-danger small mt-1" *ngIf="submitted && (!formModel.price || formModel.price <= 0)">
+            @if(submitted && (!formModel.price || formModel.price <= 0)) {
+            <div class="text-danger small mt-1">
               Price must be greater than 0.
             </div>
+            }
           </div>
 
           <div class="mb-3">
             <label class="form-label">Upload Image (optional)</label>
             <input class="form-control" type="file" accept="image/*" (change)="onFileSelected($event)" />
-            <div class="mt-2 d-flex align-items-center gap-2" *ngIf="previewUrl">
+            @if(previewUrl) {
+            <div class="mt-2 d-flex align-items-center gap-2">
               <img [src]="previewUrl" alt="Preview" class="img-thumbnail" style="max-width: 180px;">
               <button type="button" class="btn btn-sm btn-outline-danger" (click)="clearUploadedImage()">Remove</button>
             </div>
+            }
             <small class="text-muted">If you don't select a file, the existing image (if any) stays unchanged.</small>
           </div>
 
@@ -136,3 +187,4 @@
     </div>
   </div>
 </div>
+}

@@ -5,7 +5,7 @@
       <div class="col-sm-8 col-md-6">
         <input
           class="form-control"
-          placeholder="Search company, model, description, price..."
+          placeholder="Search cars..."
           [(ngModel)]="searchTerm"
           (ngModelChange)="setSearch($event, true)"
           name="searchBox"
@@ -15,41 +15,48 @@
         <button class="btn btn-primary" (click)="openModal()">Add</button>
       </div>
     </div>
-    <div class="col-md-4 mb-3" *ngFor="let car of displayedCars">
+    @for(car of displayedCars ; track car.id) {
+    <div class="col-12 col-sm-6 col-md-4 mb-3">
       <div class="card h-100 card-click" (click)="goToDetail(car.id)" role="button">
+        <img class="card-img-top" [src]="car.imageDataUrl" [alt]="car.company + ' ' + car.model" />
         <img class="card-img-top" [src]="car.imageDataUrl" [alt]="car.company + ' ' + car.model" />
         <div class="card-body">
           <h5 class="card-title">{{ car.company }} {{ car.model }}</h5>
           <p class="card-text mb-0">
             <strong>Price:</strong> {{ car.price | currency : 'USD' : 'symbol' }}
+            <strong>Price:</strong> {{ car.price | currency : 'USD' : 'symbol' }}
           </p>
         </div>
       </div>
     </div>
+    }
   </div>
 
   <!-- Loading indicator -->
   <div class="text-center mt-4" *ngIf="loading">
     <img src="/loading.gif" alt="Loading..." width="60" height="60" />
   </div>
-
+  }
   <!-- helpful empty state -->
-  <div class="text-center text-muted mt-4" *ngIf="!displayedCars?.length && !loading">
-    No cars found.
-  </div>
-
+  @if(!displayedCars.length && !loading) {
+  <div class="text-center text-muted mt-4">No cars found.</div>
+  }
   <!-- Load More button -->
-  <div class="text-center mt-4" *ngIf="hasMore()">
+  @if(hasMore()) {
+  <div class="text-center mt-4">
     <button class="btn btn-primary" (click)="loadMore()" [disabled]="loading">
-      <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status"></span>
-      Load More
+      @if(loading) {
+      <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+      } Load More
     </button>
   </div>
-
+  }
   <!-- Total count info -->
-  <div class="text-center text-muted mt-3" *ngIf="displayedCars && displayedCars.length > 0">
+  @if(displayedCars && displayedCars.length > 0) {
+  <div class="text-center text-muted mt-3">
     Showing {{ displayedCars.length }} of {{ total }} cars
   </div>
+  }
 </div>
 
 <!-- Add Car Modal -->
@@ -126,10 +133,17 @@
                 Remove
               </button>
             </div>
+            }
           </div>
 
           <div class="mb-3">
             <label class="form-label">Seller Description</label>
+            <textarea
+              class="form-control"
+              name="description"
+              rows="3"
+              [(ngModel)]="newCar.description"
+            ></textarea>
             <textarea
               class="form-control"
               name="description"
@@ -143,9 +157,13 @@
           <button type="button" class="btn btn-outline-secondary" (click)="closeModal()">
             Cancel
           </button>
+          <button type="button" class="btn btn-outline-secondary" (click)="closeModal()">
+            Cancel
+          </button>
           <button type="submit" class="btn btn-primary">Add</button>
         </div>
       </form>
     </div>
   </div>
 </div>
+}
