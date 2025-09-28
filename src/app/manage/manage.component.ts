@@ -69,7 +69,6 @@ export class ManageComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     // Load initial data
     this.loadPage(true);
-
     // keep optional q in sync with URL (you can remove this if you don't want query-driven search here)
     this.route.queryParamMap.subscribe(q => {
       const qTerm = q.get('q') || '';
